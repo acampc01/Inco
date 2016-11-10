@@ -2,11 +2,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
-
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-
 public class CrearArchivo {
 
 	private String nombre;
@@ -18,7 +15,6 @@ public class CrearArchivo {
 	 */
 	public CrearArchivo(String nombre) throws IOException{
 		createFile(nombre);
-		System.out.println("Operacion creada.");
 	}
 
 	/**
@@ -40,7 +36,7 @@ public class CrearArchivo {
 		File archivo = new File(nombreArchivo);
 
 		BufferedWriter bw;
-		if(archivo.exists()) {
+		if(archivo.exists() && (!(this.nombre.equals("Repetir")) && !(this.nombre.equals("Suma"))) ) {
 			System.out.println("El archivo ya existe.");
 		} else {
 			bw = new BufferedWriter(new FileWriter(archivo));
@@ -49,8 +45,7 @@ public class CrearArchivo {
 			
 			case "Suma": bw.write("public class " + cadena +  "{\n\n");
 
-			bw.write("\tprivate int x;\n\tprivate int y;\n\n\tpublic "+ cadena + "(int x, int y){\n\n\t\tthis.x = x;\n\t\tthis.y = y;\n\t\tsuma();\n\n\t}\n\n" +
-			"\tprivate int suma() {\n\n\t\treturn this.x+this.y;\n\n\t}\n\n");
+			bw.write("\tpublic static int suma(int x, int y){\n\t\treturn x + y;\n\t}\n\n");
 
 			bw.write("}");
 			bw.close();
@@ -62,12 +57,11 @@ public class CrearArchivo {
 			copiar.renameTo(new File("./bin/"+cadena+".class"));
 			break;
 
-			case "Repetir": bw.write("public class " + cadena +  "{\n\n");
+			case "Repetir": bw.write("import java.lang.reflect.InvocationTargetException;\n\n\npublic class " + cadena +  "{\n\n");
 
-			bw.write("\tpublic "+ cadena + "(String nombre, int numeroVeces) throws ClassNotFoundException, InstantiationException, IllegalAccessException {\n" +
-			"\t\tif(nombre.equals(\"Repetir\")){\n\t\t\tSystem.out.println(\"No se puede repetir la operacion Repetir\");\n\t\t}else{\n\t\t\trepetirOperacion(nombre, numeroVeces);\n\t\t}\n\t}\n\n"+
-			"\tpublic void repetirOperacion(String nombre, int numeroVeces) throws ClassNotFoundException, InstantiationException, IllegalAccessException {\n\n\t\tfor(int i=0;i<numeroVeces;i++){Class c = Class.forName(nombre);c.newInstance();}\n"+
-			"\n\t}\n");
+			bw.write("\tpublic static int repetir(String nombre, int numeroVeces) throws ClassNotFoundException, InstantiationException, IllegalAccessException {\n" +
+			"\t\tif(nombre.equals(\"Repetir\")){\n\t\t\tSystem.out.println(\"No se puede repetir la operacion Repetir\");\nreturn -1;\n\t\t}else{\n\t\t\treturn repetirOperacion(nombre, numeroVeces);\n\t\t}\n\t}\n\n"+
+			"\tpublic static int repetirOperacion(String nombre, int numeroVeces) throws ClassNotFoundException, InstantiationException, IllegalAccessException {\n\n\t\tint salida = 0;\n\t\tfor(int i=0;i<numeroVeces;i++){ Class c = Class.forName(nombre); try { salida = salida + (int) c.getMethods()[0].invoke(c,2,2); } catch (IllegalArgumentException | InvocationTargetException | SecurityException e) { e.printStackTrace(); } } \n\t\treturn salida;\n\n\t}");
 
 			bw.write("}");
 			bw.close();
