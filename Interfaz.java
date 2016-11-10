@@ -1,11 +1,14 @@
-import java.awt.EventQueue;
 
+import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+
+import javax.swing.JComboBox;
 
 
 public class Interfaz {
@@ -13,10 +16,10 @@ public class Interfaz {
 	private JFrame frame;
 	private JTextField textFieldNombre;
 	private JTextField txtNumEntradas;
-	private JTextField textFieldNumEntradas;
-	private JTextField txtCuerpoFuncion;
+	private JTextField textFieldSalidaMetodos;
+	private JComboBox <String> listaMetodosUtilizables;
 	
-	private Operaciones op = new Operaciones();
+	private Operaciones op;
 
 	/**
 	 * Launch the application.
@@ -53,6 +56,11 @@ public class Interfaz {
 	 * @throws ClassNotFoundException 
 	 */
 	private void initialize() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+		try {
+			op = new Operaciones();
+		} catch (Exception e2) {
+			e2.printStackTrace();
+		}
 		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
@@ -60,57 +68,74 @@ public class Interfaz {
 		frame.getContentPane().setLayout(null);
 		
 		textFieldNombre = new JTextField();
-		textFieldNombre.setBounds(268, 28, 148, 30);
+		textFieldNombre.setBounds(266, 12, 148, 205);
 		frame.getContentPane().add(textFieldNombre);
 		textFieldNombre.setColumns(10);
 		
 		txtNumEntradas = new JTextField();
-		txtNumEntradas.setEditable(false);
-		txtNumEntradas.setText("NumEntradas");
 		txtNumEntradas.setBounds(25, 198, 114, 19);
+		txtNumEntradas.setEditable(false);
+		txtNumEntradas.setText("Salida:");
 		frame.getContentPane().add(txtNumEntradas);
 		txtNumEntradas.setColumns(10);
 		
-		textFieldNumEntradas = new JTextField();
-		textFieldNumEntradas.setBounds(164, 198, 39, 19);
-		frame.getContentPane().add(textFieldNumEntradas);
-		textFieldNumEntradas.setColumns(10);
+		textFieldSalidaMetodos = new JTextField();
+		textFieldSalidaMetodos.setBounds(164, 198, 39, 19);
+		textFieldSalidaMetodos.setEditable(false);
+		frame.getContentPane().add(textFieldSalidaMetodos);
+		textFieldSalidaMetodos.setColumns(10);
 		
-		txtCuerpoFuncion = new JTextField();
-		txtCuerpoFuncion.setEditable(false);
-		txtCuerpoFuncion.setText("Cuerpo Funcion");
-		txtCuerpoFuncion.setBounds(25, 222, 114, 19);
-		frame.getContentPane().add(txtCuerpoFuncion);
-		txtCuerpoFuncion.setColumns(10);
+		
+		
+		String[] labels = new String[Operaciones.getListaMetodos().size()];
+		
+		for(int i=0;i<Operaciones.getListaMetodos().size();i++){
+			labels[i] = Operaciones.getListaMetodos().get(i);
+		}
+		
+		listaMetodosUtilizables = new JComboBox<String>(labels);
+		listaMetodosUtilizables.setBounds(25, 122, 135, 24);
+		frame.getContentPane().add(listaMetodosUtilizables);
+		
 		
 		JButton btnCrearcrea = new JButton("New Operation");
+		btnCrearcrea.setBounds(12, 12, 148, 25);
 		btnCrearcrea.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
 				try {
-					Operaciones.nuevaOperacion(textFieldNombre.getText());
+					String input = textFieldNombre.getText().substring(0, 1).toUpperCase() + textFieldNombre.getText().substring(1).toLowerCase();
+					
+					Operaciones.nuevaOperacion(input);
+					listaMetodosUtilizables.addItem(input);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
 			}
 		});
-		btnCrearcrea.setBounds(12, 12, 148, 25);
 		frame.getContentPane().add(btnCrearcrea);
 		
 		JButton btnUtilizarNueva = new JButton("Use Operation");
+		btnUtilizarNueva.setBounds(12, 49, 148, 25);
 		btnUtilizarNueva.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					Operaciones.usarOperacion();
+					int salida = Operaciones.usarOperacion();
+					textFieldSalidaMetodos.setText("" + salida);
 				} catch (ClassNotFoundException e1) {
 					e1.printStackTrace();
 				} catch (InstantiationException e1) {
 					e1.printStackTrace();
 				} catch (IllegalAccessException e1) {
 					e1.printStackTrace();
+				} catch (IllegalArgumentException e1) {
+					e1.printStackTrace();
+				} catch (InvocationTargetException e1) {
+					e1.printStackTrace();
+				} catch (SecurityException e1) {
+					e1.printStackTrace();
 				}
 			}
 		});
-		btnUtilizarNueva.setBounds(12, 49, 148, 25);
 		frame.getContentPane().add(btnUtilizarNueva);
 	}
 }
